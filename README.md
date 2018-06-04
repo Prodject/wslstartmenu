@@ -1,7 +1,7 @@
 # wslstartmenu
-A proof of concept that mirrors GUI Linux apps installed on WSL to the Windows 10 Start Menu.
+A proof of concept script that mirrors Windows Subsystem for Linux (WSL) GUI app shortcuts to the Windows 10 Start Menu.
 
-Runs on Linux Subsystem for Windows (WSL).
+Allows users who install GUI apps in WSL to find and launch them easily from the Windows 10 Start Menu.
 
 Concept
 ==============
@@ -9,6 +9,7 @@ Concept
 * Sanity check
   - Running on supported WSL? (i.e. check uname and for /mnt/c/) If not, exit or warn.
   - PowerShell installed on WSL? [1] If not, download and install [binary from GitHub](https://github.com/PowerShell/PowerShell) using dpkg or zypper.
+  - An X server installed? If not, download and install VcXsrc, install a default xlaunch.config, and set display and libgl variables in .bash.
 * Check ~/.local/share/applications for .desktop files
 * Check /usr/share/applications for .desktop files
 * Refactor each [.desktop file](https://standards.freedesktop.org/desktop-entry-spec/latest/) into a Windows .lnk file
