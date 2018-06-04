@@ -5,9 +5,9 @@ Runs on Linux Subsystem for Windows (WSL).
 
 Concept
 ==============
-* Check ~/.local/share/applications for *.desktop files
-* Check /usr/share/applications for *.desktop files
-* Refactor each [*.desktop file](https://standards.freedesktop.org/desktop-entry-spec/latest/) into a Windows .lnk file
+* Check ~/.local/share/applications for .desktop files
+* Check usr/share/applications for .desktop files
+* Refactor each [.desktop file](https://standards.freedesktop.org/desktop-entry-spec/latest/) into a Windows .lnk file
    * # get list of all .desktop files
    * # open and parse each one
    * # each Exec=% becomes bash.exe -c %
