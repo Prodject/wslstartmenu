@@ -88,14 +88,17 @@
     $Shortcut.Arguments = $WindowsBashArguments  # Save that to our shortcut
 
     # What to do with Icon= a/k/a $LinuxIconFile?
-    
-      # Bringing the icons over would be a really nice touch. Icons are a mess on Linux.
-      # Most are in .png format and may need to be converted to .ico with some embedded C#.
-      # They may or may not have a path to the file, could be located in $HOME/.icons, $XDG_DATA_DIRS/icons, and/or /usr/share/pixmaps. 
-      # Different themes also apply different icons in gnome and KDE, which the users may be expecting to see, this script could go read the theme set applied in gnome and KDE and rely on those icon sets.
-    
-    # Setting the Path= from the .desktop in the Windows shortcut may or may not be required, so this is saved until otherwise unneeded:
 
+      # Bringing the icons over and embedding would be a really nice touch but they are a big undertaking.
+      # They may or may not have a path to the file in Icon=, they could be located in $HOME/.icons, $XDG_DATA_DIRS/icons, and/or /usr/share/pixmaps. 
+      # Different themes also apply different icons in gnome and KDE, which the users may be expecting to see, so the script will have go read the theme set in gnome and KDE and then rely on those icon sets. I don't know what to do if it sees both, perhaps we should just specify exclusive support for icons set in gnome.
+      # Even once you located the icons and the ones the users will want applied if they change icons in gnome-tweak-tools, they are in .xpm and .png.
+      # The two ways I have thought of to address this are to: embed some C# to fix this or dynamically create and run a bash script that uses imagemagick on WSL to do the .png to .ico conversion.
+        # **Warning: ImageMagick must write the new .ico to /mnt/c/Windows/Temp/WSLdesktopfiles/icons/, not inside the WSL from Windows
+      # In the interim, just use a default Windows application .ico for the program.
+
+    # Setting the Path= from the .desktop in the Windows shortcut may or may not be required, so this is saved until otherwise unneeded:
+    
       # convert $LinuxExecPath to $WindowsExecPath
       # $Shortcut.WorkingDirectory = $WindowsExecPath
     
