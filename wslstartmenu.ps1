@@ -2,10 +2,13 @@
 
 <#
 .SYNOPSIS
-  A proof of concept script that mirrors Windows Subsystem for Linux (WSL) GUI app shortcuts to the Windows 10 Start Menu.
+  A PowerShell script that allows users who install GUI apps in Ubuntu 18.04 on WSL to find and launch those apps easily from the Windows 10 Start Menu.
 
 .DESCRIPTION
-  Allows users who install GUI apps in WSL to find and launch them easily from the Windows 10 Start Menu.
+
+  Extracts .desktop files from Ubuntu 18.04 on WSL and translates them into easily-launchable Start Menu shortcuts using PowerShell.
+
+  Script runs destructively one-way from Ubuntu to a folder in Windows 10 Start Menu.
 
 .NOTES
 
@@ -14,11 +17,11 @@
   My first foray into PowerShell. YMMV.
 
   Written using Visual Studio Code.
-
   Copyright (c) 2018 Hayden Barnes
   All rights reserved
   Licensed under the MIT license
-  https://github.com/sirredbeard
+  https://github.com/sirredbeard/wslstartmenu
+  https://github.com/sirredbeard/Awesome-WSL
 
 #>
 
@@ -26,8 +29,20 @@
 # =========
 
 # Preparation
+    
+    # Is this a compatible verison of Windows 10?
 
-    # Go ahead and rrase everything in CSIDL_PROGRAMS\WSL Desktop Apps\
+    # Is WSL/bash installed?
+
+    # Is an X server (Xming, X/Cygwin, or VcXsrv) installed?
+
+      # If no:
+      
+        # Download and install VcXsrv from SourceForge.net
+        # Create and hide default xlaunch.config in %CSIDL_DEFAULT_MYDOCUMENTS%
+        # Generate and run a shortcut that executes %SYSTEM32%\bash.exe -c "echo "export DISPLAY=:0" >> .bashrc && echo "export LIBGL_ALWAYS_INDIRECT=1" >> .bashrc"
+
+    # Go ahead and erase everything in %CSIDL_PROGRAMS%\WSL Desktop Apps\, this is a one-way destructive script designed to be automated.
 
     $StartMenuFolder = %CSIDL_COMMON_STARTMENU% + "\WSL Desktop Apps\*.lnk"
     Remove-Item $StartMenuFolder
@@ -38,17 +53,17 @@
 
     # First copy from the main location for .desktop files
 
-      # %\Local\Packages\CanonicalGroupLimited.Ubuntu18.04onWindows_79rhkp1fndgsc\LocalState\rootfs\usr\share\applications\*.desktop
+      # %CSIDL_DEFAULT_LOCAL_APPDATA\Packages\CanonicalGroupLimited.Ubuntu18.04onWindows_79rhkp1fndgsc\LocalState\rootfs\usr\share\applications\*.desktop
     
     # Then copy from  user-installed locations for .desktop files
 
         # Get list of users from:
     
-          # %\Local\Packages\CanonicalGroupLimited.Ubuntu18.04onWindows_79rhkp1fndgsc\LocalState\rootfs\home\
+          # %CSIDL_DEFAULT_LOCAL_APPDATA\Packages\CanonicalGroupLimited.Ubuntu18.04onWindows_79rhkp1fndgsc\LocalState\rootfs\home\
 
         # Go into each one:
 
-          # %\Local\Packages\CanonicalGroupLimited.Ubuntu18.04onWindows_79rhkp1fndgsc\LocalState\rootfs\home\$username\.local\share\applications\*.desktop
+          # %CSIDL_DEFAULT_LOCAL_APPDATA\Packages\CanonicalGroupLimited.Ubuntu18.04onWindows_79rhkp1fndgsc\LocalState\rootfs\home\$username\.local\share\applications\*.desktop
     
     # Copy the .desktop files to %TEMP%\WSLdesktopfiles\
 
@@ -60,7 +75,7 @@
 
     # Parse them with a PowerShell template
 
-    # Extract application name ($LinuxAppName), exec ("$LinuxCommand"), path ($LinuxPath), and icon ($LinuxIconFile)
+    # Extract application name ($LinuxAppName), exec ("$LinuxCommand"), path ($LinuxPath), and icon ($LinuxIconFile) from .desktop file
 
     # Create shortcut
 
@@ -71,14 +86,22 @@
     $Shortcut.TargetPath = $WindowsBashLocation # Save that to our shortcut
     $WindowsBashArguments = " -c " + "'cd " + $LinuxPath + " && " + $LinuxCommand # Pass the Linux exec line as an argument to bash following "-c" and cd'ing to the starting path
     $Shortcut.Arguments = $WindowsBashArguments  # Save that to our shortcut
+
+    # What to do with Icon= a/k/a $LinuxIconFile?
     
-    # Setting the path from the .desktop in the Windows shortcut may or may not be required, so this is saved until otherwise unneeded:
+      # Bringing the icons over would be a really nice touch. Icons are a mess on Linux.
+      # Most are in .png format and may need to be converted to .ico with some embedded C#.
+      # They may or may not have a path to the file, could be located in $HOME/.icons, $XDG_DATA_DIRS/icons, and/or /usr/share/pixmaps. 
+      # Different themes also apply different icons in gnome and KDE, which the users may be expecting to see, this script could go read the theme set applied in gnome and KDE and rely on those icon sets.
+    
+    # Setting the Path= from the .desktop in the Windows shortcut may or may not be required, so this is saved until otherwise unneeded:
+
       # convert $LinuxExecPath to $WindowsExecPath
       # $Shortcut.WorkingDirectory = $WindowsExecPath
     
     $Shortcut.Save() # Save our shortcut
 
-  # Do again with next .desktop file
+  # Do again with next .desktop file until done.
 
 # Cleanup
 
